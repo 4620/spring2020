@@ -122,7 +122,7 @@ for y in range(frame.height):
                         lightDiffuse = light.color.toScaled(product)
                         diffuse = diffuse.plus(lightDiffuse)                        
 
-                    color = ambient.plus(specular).plus(diffuse)                    
+                    color = ambient.plus(diffuse)                    
                     
                     frame.set(x,y,color)
                 else:
