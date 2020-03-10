@@ -35,6 +35,14 @@ class Vector:
         toReturn.y /= len
         toReturn.z /= len
         return toReturn
+    
+    def clamp(self, max:int):
+        if self.x > max:
+            self.x = max
+        if self.y > max:
+            self.y = max
+        if self.z > max:
+            self.z = max
 
     def toScaled(self, scale:float):
         return Vector(self.x * scale, self.y * scale, self.z * scale)

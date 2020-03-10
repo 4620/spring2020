@@ -8,7 +8,6 @@ from Point3D import Point3D
 from Ray import Ray
 from AreaLight import AreaLight
 from Camera import Camera
-from Color import Color
 from DirectionalLight import DirectionalLight
 from Light import Light
 from Material import Material
@@ -39,20 +38,20 @@ cameraOrigin = Point3D(0,0,1)
 origin = Point3D(0,0,0)
 cameraLookAt = origin
 cameraUp = Vector(0,1,0)
-cameraBackgroundColor = Color(0,0,0)
+cameraBackgroundColor = Vector(0,0,0)
 fov = 45 / 360 * math.pi * 2 # convert 45 degrees to radians. Should result in pi/4 ~= .785
 
 camera = Camera(cameraOrigin, cameraLookAt, cameraUp, fov, cameraBackgroundColor)
 
-lightDirection = Point3D(0,-1,0)
-lightColor = Color(255,255,255)
+lightDirection = Vector(0,-1,0)
+lightColor = Vector(255,255,255)
 
 light = DirectionalLight(lightColor, 1, lightDirection)
 
 sphereCenter = origin
 sphereRadius = .5
-sphereMaterialColor = Color(255, 0, 0)
-sphereMaterialSpecularColor = Color(255,255,255)
+sphereMaterialColor = Vector(255, 0, 0)
+sphereMaterialSpecularColor = Vector(255,255,255)
 sphereMaterialSpecularStrength = 1
 
 sphereMaterial = Material(sphereMaterialColor, sphereMaterialSpecularColor, sphereMaterialSpecularStrength)
@@ -95,7 +94,7 @@ for y in range(frame.height):
         width = math.cos(camera.fov) * distance
         height = math.cos(camera.fov) * distance
         #width and height should be the same unless we set different fovs for width and height
-        cameraRight = #???
+        cameraRight = toLookAt.cross(camera.up)
         rightWorld = cameraRight.toScaled(width * xPercent)
         upWorld =  camera.up.toScaled(height * yPercent)
         pixelLookAt = Point3D.fromVector(upWorld.plus(rightWorld))
@@ -107,15 +106,29 @@ for y in range(frame.height):
             try:
                 t = object.intersect(ray)
                 if t >= 0:
-                    frame.set(x,y,255,255,255)
+                    collisionPoint = Point3D.fromVector(ray.direction.toScaled(t).plus(camera.origin.vector))
+                    normalDirection = collisionPoint.minus(object.center)
+                    normal = normalDirection.toNormalized()
+
+                    ambient = Vector(30, 30, 30)
+                    diffuse = Vector(0,0,0)
+
+                    for light in lights:
+                        lightDiffuse = Vector(0,0,0)
+                        toLight = light.direction.toScaled(-1)
+                        product = toLight.dot(normal)
+                        if product < 0:
+                            product = 0
+                        lightDiffuse = light.color.toScaled(product)
+                        diffuse = diffuse.plus(lightDiffuse)                        
+
+                    color = ambient.plus(specular).plus(diffuse)                    
+                    
+                    frame.set(x,y,color)
                 else:
-                    frame.set(x,y,255, 0, 0)
+                    frame.set(x,y, Vector(0,0,0))
             except:
-                frame.set(x,y, 0, 0,0)
-
-
-
-    
+                frame.set(x,y, Vector(0,0,0))   
 
 
 ##Write the buffer out to a file
