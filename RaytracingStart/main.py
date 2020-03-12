@@ -1,4 +1,30 @@
-#python -m pip install pypng
+""" 
+To run this program do the following:
+
+First, install the pip pacakages by running the following
+python -m pip install -r requirements.txt
+
+Then run this main file by running the following
+python main.py
+
+Note that this program is built to run in python 3
+
+If you machine defaults to running python 2 when you run python
+from your shell/command line, it won't work
+
+You may need to run
+python3 main.py to get the program to run
+
+
+Written by B. Ricks, @bricksphd, 
+
+Professor at unomaha.edu
+
+MIT License, 2020
+
+"""
+
+
 import png
 import math
 

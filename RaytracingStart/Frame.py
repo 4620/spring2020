@@ -1,6 +1,7 @@
 import math
 
 class Frame:
+    """ Class documentation """
     def __init__(self, width:int, height:int):
         self.buffer = [128 for x in range(width*height*3)]
         self.width = width
