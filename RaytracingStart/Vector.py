@@ -1,6 +1,7 @@
 import math
 
 class Vector:
+    """ A vector 3. """
     def __init__(self, x:float, y:float, z:float):
         self.x = x
         self.y = y

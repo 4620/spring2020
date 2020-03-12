@@ -3,6 +3,7 @@ from Vector import Vector
 
 
 class Point3D:
+    """ A point in 3D space. Wraps a Vector."""
     def __init__(self, x:float, y:float, z:float):
        self.vector = Vector(x,y,z)
 

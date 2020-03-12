@@ -5,6 +5,7 @@ from Ray import Ray
 import math
 
 class Sphere(SceneObject):
+    """ A spherical scene object. """
     def __init__(self, material:Material, center:Point3D, radius:float):
         SceneObject.__init__(self, material)
         self.center = center

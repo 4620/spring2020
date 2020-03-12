@@ -1,7 +1,7 @@
 import math
 
 class Frame:
-    """ Class documentation """
+    """ The virtual frame that we render to. Maps to the output image. """
     def __init__(self, width:int, height:int):
         self.buffer = [128 for x in range(width*height*3)]
         self.width = width
