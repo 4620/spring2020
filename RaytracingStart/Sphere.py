@@ -19,7 +19,7 @@ class Sphere(SceneObject):
         c = e.dot(e) - self.radius * self.radius
         discriminant = b**2 - 4 * a * c
         if discriminant < 0:
-            raise  "Result is imaginary"
+            return -float("inf")
         else:
             optionA = (-b - math.sqrt(discriminant))/(2*a)
             optionB = (-b + math.sqrt(discriminant))/(2*a)

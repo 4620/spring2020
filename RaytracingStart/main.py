@@ -27,6 +27,7 @@ MIT License, 2020
 
 import png
 import math
+import random
 
 from Frame import Frame
 from Vector import Vector
@@ -100,6 +101,50 @@ objects = [sphere]
 #If we don't have a hit, return the background color
 #Then calculate the color based on the direction to the right
 
+# Ray - Ray we're sending out
+# orgin object - Object we don't want to self-intersect with
+def hitDistance(ray, originObject):
+    closestHit = float("inf")
+    closestObjectIndex = -1
+    for object in objects:
+        if object != originObject:
+            t = object.intersect(ray)
+            if t >= 0 and t < closestHit:
+                closestHit = t
+                closestObjectIndex = objects.index(object)
+    return [closestHit, closestObjectIndex]
+
+def getColor(ray, originObject, recursionLimit):
+    if recursionLimit <= 0:
+        return Vector(0,0,0)
+
+    [t, collisionObjectIndex] = hitDistance(ray, originObject)
+    if collisionObjectIndex != -1:
+        object = objects[collisionObjectIndex]
+        collisionPoint = Point3D.fromVector(ray.direction.toScaled(t).plus(camera.origin.vector))
+        normalDirection = collisionPoint.minus(object.center)
+        normal = normalDirection.toNormalized()
+
+        ambient = Vector(30, 30, 30)
+        diffuse = Vector(0,0,0)
+
+        for light in lights:
+            lightDiffuse = Vector(0,0,0)
+            toLight = light.direction.toScaled(-1)
+            product = toLight.dot(normal)
+            if product < 0:
+                product = 0
+            lightDiffuse = light.color.toScaled(product)
+            diffuse = diffuse.plus(lightDiffuse)                        
+
+        color = ambient.plus(diffuse)                    
+        
+        return color
+    else:
+        return Vector(0,0,0)
+    
+
+
 for y in range(frame.height):
     for x in range(frame.width):
         #Convert from screen space to camera space
@@ -120,6 +165,8 @@ for y in range(frame.height):
         width = math.cos(camera.fov) * distance
         height = math.cos(camera.fov) * distance
         #width and height should be the same unless we set different fovs for width and height
+
+        # TODO: This should be toLookAtNormalize
         cameraRight = toLookAt.cross(camera.up)
         rightWorld = cameraRight.toScaled(width * xPercent)
         upWorld =  camera.up.toScaled(height * yPercent)
@@ -128,33 +175,89 @@ for y in range(frame.height):
         #We need to generate our look at ray and NORMALIZE IT!!!
         ray = Ray(camera.origin, pixelLookAt.minus(camera.origin).toNormalized())
 
-        for object in objects:
-            try:
-                t = object.intersect(ray)
-                if t >= 0:
-                    collisionPoint = Point3D.fromVector(ray.direction.toScaled(t).plus(camera.origin.vector))
-                    normalDirection = collisionPoint.minus(object.center)
-                    normal = normalDirection.toNormalized()
+        # jitter the ray
 
-                    ambient = Vector(30, 30, 30)
-                    diffuse = Vector(0,0,0)
+        r = 0
+        g = 0
+        b = 0
+        samples = 128
+        for i in range(samples):
+            ray2 = Ray(Point3D.fromVector(ray.origin.vector.clone()), ray.direction.clone())
+            ray2.direction.x += (random.random() - .5)*2*width/frame.width
+            ray2.direction.y += (random.random() - .5)*2*height/frame.height
+            ray2.direction = ray2.direction.toNormalized()
+            color = getColor(ray2, None, 1)
+            r += color.x
+            g += color.y
+            b += color.z
+        r /= samples
+        g /= samples
+        b /= samples
 
-                    for light in lights:
-                        lightDiffuse = Vector(0,0,0)
-                        toLight = light.direction.toScaled(-1)
-                        product = toLight.dot(normal)
-                        if product < 0:
-                            product = 0
-                        lightDiffuse = light.color.toScaled(product)
-                        diffuse = diffuse.plus(lightDiffuse)                        
 
-                    color = ambient.plus(diffuse)                    
+        frame.set(x,y, Vector(r,g,b))
+
+        # How to speed this up?
+        # Parallel Processing
+        # Don't use python
+        # KD Trees - Ray collision algorithm is O(N) N is the number of objects
+        # Importance Sampling
+        
+
+
+        # [t, collisionObjectIndex] = hitDistance(ray, None)
+        # if collisionObjectIndex != -1:
+        #     object = objects[collisionObjectIndex]
+        #     collisionPoint = Point3D.fromVector(ray.direction.toScaled(t).plus(camera.origin.vector))
+        #     normalDirection = collisionPoint.minus(object.center)
+        #     normal = normalDirection.toNormalized()
+
+        #     ambient = Vector(30, 30, 30)
+        #     diffuse = Vector(0,0,0)
+
+        #     for light in lights:
+        #         lightDiffuse = Vector(0,0,0)
+        #         toLight = light.direction.toScaled(-1)
+        #         product = toLight.dot(normal)
+        #         if product < 0:
+        #             product = 0
+        #         lightDiffuse = light.color.toScaled(product)
+        #         diffuse = diffuse.plus(lightDiffuse)                        
+
+        #     color = ambient.plus(diffuse)                    
+            
+        #     frame.set(x,y,color)
+        # else:
+        #     frame.set(x,y, Vector(0,0,0))
+
+
+        # for object in objects:
+        #     try:
+        #         t = object.intersect(ray)
+        #         if t >= 0:
+        #             collisionPoint = Point3D.fromVector(ray.direction.toScaled(t).plus(camera.origin.vector))
+        #             normalDirection = collisionPoint.minus(object.center)
+        #             normal = normalDirection.toNormalized()
+
+        #             ambient = Vector(30, 30, 30)
+        #             diffuse = Vector(0,0,0)
+
+        #             for light in lights:
+        #                 lightDiffuse = Vector(0,0,0)
+        #                 toLight = light.direction.toScaled(-1)
+        #                 product = toLight.dot(normal)
+        #                 if product < 0:
+        #                     product = 0
+        #                 lightDiffuse = light.color.toScaled(product)
+        #                 diffuse = diffuse.plus(lightDiffuse)                        
+
+        #             color = ambient.plus(diffuse)                    
                     
-                    frame.set(x,y,color)
-                else:
-                    frame.set(x,y, Vector(0,0,0))
-            except:
-                frame.set(x,y, Vector(0,0,0))   
+        #             frame.set(x,y,color)
+        #         else:
+        #             frame.set(x,y, Vector(0,0,0))
+        #     except:
+        #         frame.set(x,y, Vector(0,0,0))   
 
 
 ##Write the buffer out to a file
