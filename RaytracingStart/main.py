@@ -28,6 +28,7 @@ MIT License, 2020
 import png
 import math
 import random
+from datetime import datetime
 
 from Frame import Frame
 from Vector import Vector
@@ -50,6 +51,7 @@ from SpotLight import SpotLight
 
 
 print("Starting our ray tracer")
+start = datetime.now()
 
 
 # Minimum for a ray tracer
@@ -180,7 +182,7 @@ for y in range(frame.height):
         r = 0
         g = 0
         b = 0
-        samples = 128
+        samples = 1
         for i in range(samples):
             ray2 = Ray(Point3D.fromVector(ray.origin.vector.clone()), ray.direction.clone())
             ray2.direction.x += (random.random() - .5)*2*width/frame.width
@@ -214,3 +216,6 @@ w.write_array(f, frame.buffer)
 f.close()
 
 print("Finished rendering the file")
+end = datetime.now()
+
+print("Run time: " + str(end - start))
