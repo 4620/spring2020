@@ -73,33 +73,46 @@ backgroundPixelByteWidth = 4 if backgroundMeta['alpha'] else 3
 
 frame = Frame(256, 256)
 
-cameraOrigin = Point3D(0,0,1)
-origin = Point3D(0,0,0)
-cameraLookAt = origin
-cameraUp = Vector(0,1,0)
-cameraBackgroundColor = Vector(0,0,0)
-fov = 45 / 360 * math.pi * 2 # convert 45 degrees to radians. Should result in pi/4 ~= .785
+cameraOrigin = Point3D(0, 0, 1)
+origin = Point3D(0, 0, 0)
+cameraLookAt = Point3D(0, 0, 0)
+cameraUp = Vector(0, 1, 0)
+cameraBackgroundColor = Vector(0, 0, 0)
+# convert 45 degrees to radians. Should result in pi/4 ~= .785
+fov = 45 / 360 * math.pi * 2
+raysPerPixel = 1
+focusPoint = 0
 
-camera = Camera(cameraOrigin, cameraLookAt, cameraUp, fov, cameraBackgroundColor)
+camera = PerspectiveCamera(cameraOrigin, cameraLookAt, cameraUp, cameraBackgroundColor, fov)
 
-lightDirection = Vector(0,-1,0)
-lightColor = Vector(255,255,255)
+lightDirection = Vector(0, -1, 0)
+lightColor = Vector(255, 255, 255)
 
 light = DirectionalLight(lightColor, 1, lightDirection)
+light2 = DirectionalLight(Vector(0, 0, 255), 1, Vector(1, 0, 0))
 
-sphereCenter = origin
+sphereCenter = Point3D(0,0,-.2)
 sphereRadius = .5
-sphereMaterialColor = Vector(255, 0, 0)
-sphereMaterialSpecularColor = Vector(255,255,255)
+sphereMaterialColor = Vector(255, 255, 255)
+sphereMaterialSpecularColor = Vector(255, 255, 255)
 sphereMaterialSpecularStrength = 1
 
-sphereMaterial = Material(sphereMaterialColor, sphereMaterialSpecularColor, sphereMaterialSpecularStrength)
+sphereMaterial = Material(
+    sphereMaterialColor, sphereMaterialSpecularColor, sphereMaterialSpecularStrength,.2)
+
+sphereMaterial2 = Material(
+    Vector(255, 255, 255), sphereMaterialSpecularColor, sphereMaterialSpecularStrength, .5)
+
+sphereMaterial3 = Material(
+    Vector(0, 255, 0), sphereMaterialSpecularColor, sphereMaterialSpecularStrength, 0)
 
 sphere = Sphere(sphereMaterial, sphereCenter, sphereRadius)
+sphere2 = Sphere(sphereMaterial2, Point3D(.2, .2, .5), .1)
+sphere3 = Sphere(sphereMaterial2, Point3D(-.2, -.1, .5), .1)
+sphere4 = Sphere(sphereMaterial3, Point3D(0, -.1, .5), .1)
 
 lights = [light]
-objects = [sphere]
-
+objects = [sphere, sphere2, sphere3, sphere4]
 #Now loop over every pixel in our frame
 
 #For every pixel
