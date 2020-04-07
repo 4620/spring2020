@@ -83,7 +83,8 @@ fov = 45 / 360 * math.pi * 2
 raysPerPixel = 1
 focusPoint = 0
 
-camera = PerspectiveCamera(cameraOrigin, cameraLookAt, cameraUp, cameraBackgroundColor, fov)
+camera = PerspectiveCamera(cameraOrigin, cameraLookAt, cameraUp,
+                           cameraBackgroundColor, raysPerPixel, focusPoint, fov)
 
 lightDirection = Vector(0, -1, 0)
 lightColor = Vector(255, 255, 255)
@@ -175,6 +176,8 @@ def sampleBackground(direction):
 
 for y in range(frame.height):
     for x in range(frame.width):
+        if x == 123 and y == 159:
+            print("debug")
         #Convert from screen space to camera space
         #Then from frame camera space to world space
         yPercent = -1 * (y / frame.height * 2 - 1) #-1 because images have y down
@@ -195,7 +198,7 @@ for y in range(frame.height):
         #width and height should be the same unless we set different fovs for width and height
 
         # TODO: This should be toLookAtNormalize
-        cameraRight = toLookAt.cross(camera.up)
+        cameraRight = toLookAtNormalized.cross(camera.up)
         rightWorld = cameraRight.toScaled(width * xPercent)
         upWorld =  camera.up.toScaled(height * yPercent)
         pixelLookAt = Point3D.fromVector(upWorld.plus(rightWorld))
