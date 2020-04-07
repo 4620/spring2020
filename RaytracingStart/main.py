@@ -197,68 +197,7 @@ for y in range(frame.height):
 
         frame.set(x,y, Vector(r,g,b))
 
-        # How to speed this up?
-        # Parallel Processing
-        # Don't use python
-        # KD Trees - Ray collision algorithm is O(N) N is the number of objects
-        # Importance Sampling
         
-
-
-        # [t, collisionObjectIndex] = hitDistance(ray, None)
-        # if collisionObjectIndex != -1:
-        #     object = objects[collisionObjectIndex]
-        #     collisionPoint = Point3D.fromVector(ray.direction.toScaled(t).plus(camera.origin.vector))
-        #     normalDirection = collisionPoint.minus(object.center)
-        #     normal = normalDirection.toNormalized()
-
-        #     ambient = Vector(30, 30, 30)
-        #     diffuse = Vector(0,0,0)
-
-        #     for light in lights:
-        #         lightDiffuse = Vector(0,0,0)
-        #         toLight = light.direction.toScaled(-1)
-        #         product = toLight.dot(normal)
-        #         if product < 0:
-        #             product = 0
-        #         lightDiffuse = light.color.toScaled(product)
-        #         diffuse = diffuse.plus(lightDiffuse)                        
-
-        #     color = ambient.plus(diffuse)                    
-            
-        #     frame.set(x,y,color)
-        # else:
-        #     frame.set(x,y, Vector(0,0,0))
-
-
-        # for object in objects:
-        #     try:
-        #         t = object.intersect(ray)
-        #         if t >= 0:
-        #             collisionPoint = Point3D.fromVector(ray.direction.toScaled(t).plus(camera.origin.vector))
-        #             normalDirection = collisionPoint.minus(object.center)
-        #             normal = normalDirection.toNormalized()
-
-        #             ambient = Vector(30, 30, 30)
-        #             diffuse = Vector(0,0,0)
-
-        #             for light in lights:
-        #                 lightDiffuse = Vector(0,0,0)
-        #                 toLight = light.direction.toScaled(-1)
-        #                 product = toLight.dot(normal)
-        #                 if product < 0:
-        #                     product = 0
-        #                 lightDiffuse = light.color.toScaled(product)
-        #                 diffuse = diffuse.plus(lightDiffuse)                        
-
-        #             color = ambient.plus(diffuse)                    
-                    
-        #             frame.set(x,y,color)
-        #         else:
-        #             frame.set(x,y, Vector(0,0,0))
-        #     except:
-        #         frame.set(x,y, Vector(0,0,0))   
-
 
 ##Write the buffer out to a file
 
