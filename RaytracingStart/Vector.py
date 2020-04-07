@@ -48,11 +48,17 @@ class Vector:
     def toScaled(self, scale:float):
         return Vector(self.x * scale, self.y * scale, self.z * scale)
 
+    def simpleMultiply(self, other):
+        return Vector(self.x * other.x, self.y * other.y, self.z * other.z)
+
     def cross(self, other):
         return Vector(self.y*other.z - self.z*other.y, -(self.x*other.z - self.z*other.x), self.x*other.y - self.y*other.x)
     
     def dot(self, other):
         return self.x * other.x + self.y * other.y + self.z * other.z
+    
+    def reflectAbout(self, other):
+        return self.clone().toScaled(-1).plus(other.toScaled(2*self.dot(other)))
     
 
 

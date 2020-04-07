@@ -59,7 +59,7 @@ background = png.Reader(filename="field.png")
 # Grab the pixels in an array
 # It's sligthly tricky because color png images may be packid as 3-byte pixels or 4-byte pixels (w/transparency)
 # https://stackoverflow.com/questions/138250/how-to-read-the-rgb-value-of-a-given-pixel-in-python/50894365
-backgroundWidth, backgroundHeight, backrgoundRows, backgroundMeta =  background.read_flat()
+backgroundWidth, backgroundHeight, backgroundRows, backgroundMeta =  background.read_flat()
 backgroundPixelByteWidth = 4 if backgroundMeta['alpha'] else 3
 
 
@@ -155,22 +155,43 @@ def getColor(ray, originObject, recursionLimit):
         diffuse = Vector(0,0,0)
 
         for light in lights:
-            lightDiffuse = Vector(0,0,0)
             toLight = light.direction.toScaled(-1)
-            product = toLight.dot(normal)
-            if product < 0:
-                product = 0
-            lightDiffuse = light.color.toScaled(product)
-            diffuse = diffuse.plus(lightDiffuse)                        
+            [t2, shadowObjectIndex] = hitDistance(Ray(collisionPoint, toLight), object)
+            if shadowObjectIndex == -1:
+                lightDiffuse = Vector(0,0,0)
+                product = toLight.dot(normal)
+                if product < 0:
+                    product = 0
+                lightDiffuse = light.color.toScaled(product)
+                lightDiffuse = lightDiffuse.simpleMultiply(object.material.diffuseColor)
+                lightDiffuse = lightDiffuse.toScaled(1/255)
+                diffuse = diffuse.plus(lightDiffuse)  
 
-        color = ambient.plus(diffuse)                    
+
+            # Needs:
+            # Normal
+            # Incoming direction (ray.direction)
+            # Want reflective direction
+            reflectiveDirection = ray.direction.toScaled(-1).reflectAbout(normal)          
+            reflectionRay = Ray(collisionPoint, reflectiveDirection)
+            reflectionColor = getColor(reflectionRay, object, recursionLimit - 1)
+
+        color = ambient.plus(diffuse.toScaled(1 - object.material.reflectivity)).plus(reflectionColor.toScaled(object.material.reflectivity))                   
         
         return color
     else:
         return sampleBackground(ray.direction)
 
 def sampleBackground(direction):
-    return Vector(255, 0, 255)
+   a1 = math.atan2(direction.z, direction.x)
+   b1 = math.atan2(-direction.y, direction.z)
+   a = (a1 + math.pi)/(2*math.pi)
+   b = (b1 + math.pi)/(2*math.pi)
+   i = math.floor(a*backgroundWidth)
+   j = math.floor(b*backgroundHeight)
+   pixelPosition = i + j * backgroundWidth
+   backgroundColor = backgroundRows[pixelPosition * backgroundPixelByteWidth:(pixelPosition+1)*backgroundPixelByteWidth]
+   return Vector(backgroundColor[0], backgroundColor[1], backgroundColor[2])
     
 
 
@@ -211,13 +232,13 @@ for y in range(frame.height):
         r = 0
         g = 0
         b = 0
-        samples = 1
+        samples = 128
         for i in range(samples):
             ray2 = Ray(Point3D.fromVector(ray.origin.vector.clone()), ray.direction.clone())
             ray2.direction.x += (random.random() - .5)*2*width/frame.width
             ray2.direction.y += (random.random() - .5)*2*height/frame.height
             ray2.direction = ray2.direction.toNormalized()
-            color = getColor(ray2, None, 1)
+            color = getColor(ray2, None, 4)
             r += color.x
             g += color.y
             b += color.z
