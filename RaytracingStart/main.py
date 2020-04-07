@@ -53,6 +53,16 @@ from SpotLight import SpotLight
 print("Starting our ray tracer")
 start = datetime.now()
 
+# Grab the enivornment image
+background = png.Reader(filename="field.png")
+
+# Grab the pixels in an array
+# It's sligthly tricky because color png images may be packid as 3-byte pixels or 4-byte pixels (w/transparency)
+# https://stackoverflow.com/questions/138250/how-to-read-the-rgb-value-of-a-given-pixel-in-python/50894365
+backgroundWidth, backgroundHeight, backrgoundRows, backgroundMeta =  background.read_flat()
+backgroundPixelByteWidth = 4 if backgroundMeta['alpha'] else 3
+
+
 
 # Minimum for a ray tracer
 # A frame to render to
@@ -143,7 +153,10 @@ def getColor(ray, originObject, recursionLimit):
         
         return color
     else:
-        return Vector(0,0,0)
+        return sampleBackground(ray.direction)
+
+def sampleBackground(direction):
+    return Vector(255, 0, 255)
     
 
 
