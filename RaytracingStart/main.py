@@ -183,10 +183,10 @@ def getColor(ray, originObject, recursionLimit):
         return sampleBackground(ray.direction)
 
 def sampleBackground(direction):
-   a1 = math.atan2(direction.z, direction.x)
-   b1 = math.atan2(-direction.y, direction.z)
-   a = (a1 + math.pi)/(2*math.pi)
-   b = (b1 + math.pi)/(2*math.pi)
+   theata = math.atan2(direction.x, direction.z)
+   phi = math.acos(direction.y)
+   a = ((theata / math.pi) + 1) / 2
+   b = phi / math.pi
    i = math.floor(a*backgroundWidth)
    j = math.floor(b*backgroundHeight)
    pixelPosition = i + j * backgroundWidth
